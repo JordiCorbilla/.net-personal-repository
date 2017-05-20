@@ -38,7 +38,7 @@ namespace myTestingStuff
     {
         private string DateFormat;
 
-        TestData(string format)
+        public TestData(string format)
         {
             DateFormat = format;
         }
@@ -47,11 +47,13 @@ namespace myTestingStuff
         public string Name { get; set; }
         public DateTime Date { get; set; }
 
-        public string DateFormatted { 
+        public string DateFormatted
+        {
             get
             {
                 return Date.ToString(DateFormat, CultureInfo.InvariantCulture);
             }
+        }
     }
 
     [TestClass]
