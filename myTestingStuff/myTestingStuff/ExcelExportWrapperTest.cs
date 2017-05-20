@@ -25,17 +25,66 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-using System;
+using ClosedXML.Excel;
+using System.Collections.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace myTestingStuff
 {
+    public class TestData
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
     [TestClass]
     public class ExcelExportWrapperTest
     {
-        [TestMethod]
-        public void TestMethod1()
+        private MemoryStream NormalExport()
         {
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                IXLWorksheet worksheet = workbook.Worksheets.Add("Test");
+
+                Collection<TestData> test = new Collection<TestData> {
+                    new TestData { Id = 1, Name = "test1" },
+                    new TestData { Id =2, Name = "test2" }
+                };
+
+                //Add Columns
+                worksheet.Cell(1, 1).SetValue("Id").Style.Font.Bold = true;
+                worksheet.Cell(1, 2).SetValue("Name").Style.Font.Bold = true;
+
+                //Add content
+                for (int i = 0; i < test.Count; i++)
+                {
+                    worksheet.Cell(i + 2, 1).SetValue(test[i].Id);
+                    worksheet.Cell(i + 2, 2).SetValue(test[i].Name);
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                MemoryStream memoryStream = new MemoryStream();
+                workbook.SaveAs(memoryStream);
+                memoryStream.Position = 0;
+                return memoryStream;
+            }
+        }
+
+        [TestMethod]
+        public void TestExport()
+        {
+            using (MemoryStream ms = NormalExport())
+            {
+                using (FileStream file = new FileStream("file.xlsx", FileMode.Create, FileAccess.Write))
+                {
+                    byte[] bytes = new byte[ms.Length];
+                    ms.Read(bytes, 0, (int)ms.Length);
+                    file.Write(bytes, 0, bytes.Length);
+                    ms.Close();
+                }
+            }
         }
     }
 }
