@@ -25,6 +25,8 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
+using System;
+using System.Globalization;
 using ClosedXML.Excel;
 using System.Collections.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,8 +36,22 @@ namespace myTestingStuff
 {
     public class TestData
     {
+        private string DateFormat;
+
+        TestData(string format)
+        {
+            DateFormat = format;
+        }
+
         public int Id { get; set; }
         public string Name { get; set; }
+        public DateTime Date { get; set; }
+
+        public string DateFormatted { 
+            get
+            {
+                return Date.ToString(DateFormat, CultureInfo.InvariantCulture);
+            }
     }
 
     [TestClass]
@@ -48,8 +64,8 @@ namespace myTestingStuff
                 IXLWorksheet worksheet = workbook.Worksheets.Add("Test");
 
                 Collection<TestData> test = new Collection<TestData> {
-                    new TestData { Id = 1, Name = "test1" },
-                    new TestData { Id =2, Name = "test2" }
+                    new TestData("dd/MM/yyyy") { Id = 1, Name = "test1", Date = DateTime.UtcNow },
+                    new TestData("dd/MM/yyyy") { Id =2, Name = "test2", Date = DateTime.UtcNow }
                 };
 
                 //Add Columns
@@ -72,12 +88,89 @@ namespace myTestingStuff
             }
         }
 
+        private MemoryStream NormalExportReflection(Collection<string> columns)
+        {
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                IXLWorksheet worksheet = workbook.Worksheets.Add("Test");
+
+                Collection<TestData> test = new Collection<TestData> {
+                    new TestData("dd/MM/yyyy") { Id = 1, Name = "test1", Date = DateTime.UtcNow },
+                    new TestData("dd/MM/yyyy") { Id =2, Name = "test2", Date = DateTime.UtcNow }
+                };
+
+                //Add Columns using Reflection - this is the header and it only needs to be run once
+                int column = 1;
+                int entry = 1;
+                if (test.Count > 0)
+                {
+                    var item = test[0]; //get the first element of the list
+                    foreach (var property in item.GetType().GetProperties())
+                    {
+                        if (columns.Contains(property.Name))
+                        {
+                            worksheet.Cell(entry, column).SetValue(property.Name).Style.Font.Bold = true;
+                            column++;
+                        }
+                    }
+                    entry++;
+
+                    //Add content using Reflection
+                    foreach (var row in test)
+                    {
+                        column = 1;
+                        foreach (var property in row.GetType().GetProperties())
+                        {
+                            if (columns.Contains(property.Name))
+                            {
+                                object value = property.GetValue(row, null);
+                                worksheet.Cell(entry, column).SetValue(value).Style.Font.Bold = true;
+                                column++;
+                            }
+                        }
+                        entry++;
+                    }
+                }
+                else //just print the headers using the list that has been sent through
+                {
+                    column = 1;
+                    foreach (var header in columns)
+                    {
+                        worksheet.Cell(entry, column).SetValue(header).Style.Font.Bold = true;
+                        column++;
+                    }
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                MemoryStream memoryStream = new MemoryStream();
+                workbook.SaveAs(memoryStream);
+                memoryStream.Position = 0;
+                return memoryStream;
+            }
+        }
+
         [TestMethod]
         public void TestExport()
         {
             using (MemoryStream ms = NormalExport())
             {
                 using (FileStream file = new FileStream("file.xlsx", FileMode.Create, FileAccess.Write))
+                {
+                    byte[] bytes = new byte[ms.Length];
+                    ms.Read(bytes, 0, (int)ms.Length);
+                    file.Write(bytes, 0, bytes.Length);
+                    ms.Close();
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestExportReflection()
+        {
+            using (MemoryStream ms = NormalExportReflection(new Collection<string> { "Id", "Name", "DateFormatted" }))
+            {
+                using (FileStream file = new FileStream("fileReflection.xlsx", FileMode.Create, FileAccess.Write))
                 {
                     byte[] bytes = new byte[ms.Length];
                     ms.Read(bytes, 0, (int)ms.Length);
