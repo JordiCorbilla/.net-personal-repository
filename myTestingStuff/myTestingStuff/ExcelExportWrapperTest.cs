@@ -26,43 +26,21 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 
 using System;
-using System.Globalization;
+using thundax.myTestingStuff.Biz;
 using ClosedXML.Excel;
 using System.Collections.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
-namespace myTestingStuff
+namespace thundax.myTestingStuff
 {
-    public class TestData
+    public class ExcelWrapper<T>
     {
-        private string DateFormat;
-
-        public TestData(string format)
-        {
-            DateFormat = format;
-        }
-
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public DateTime Date { get; set; }
-
-        public string DateFormatted
-        {
-            get
-            {
-                return Date.ToString(DateFormat, CultureInfo.InvariantCulture);
-            }
-        }
-    }
-
-    public class ExcelExporter<T>
-    {
-        public static MemoryStream GetStream(Collection<T> data, Collection<string> filter, Collection<string> alias)
+        public static MemoryStream GenerateStream(string worksheetName, Collection<T> data, Collection<string> filter, Collection<string> alias)
         {
             using (XLWorkbook workbook = new XLWorkbook())
             {
-                IXLWorksheet worksheet = workbook.Worksheets.Add("Test");
+                IXLWorksheet worksheet = workbook.Worksheets.Add(worksheetName);
 
                 //Add Columns using Reflection - this is the header and it only needs to be run once
                 int column = 1;
@@ -246,11 +224,13 @@ namespace myTestingStuff
         [TestMethod]
         public void TestExportReflectionClass()
         {
-            using (MemoryStream ms = ExcelExporter<TestData>.GetStream(
-                new Collection<TestData> {
+            Collection<TestData> data = new Collection<TestData> {
                     new TestData("dd/MM/yyyy") { Id = 1, Name = "test1", Date = DateTime.UtcNow },
                     new TestData("dd/MM/yyyy") { Id =2, Name = "test2", Date = DateTime.UtcNow }
-                },
+                };
+
+            using (MemoryStream ms = ExcelWrapper<TestData>.GenerateStream("test",
+                data,
                 new Collection<string> { "Id", "Name", "DateFormatted" },
                 new Collection<string> { "Id", "Name", "Date" }))
             {
@@ -263,5 +243,7 @@ namespace myTestingStuff
                 }
             }
         }
+
+
     }
 }
