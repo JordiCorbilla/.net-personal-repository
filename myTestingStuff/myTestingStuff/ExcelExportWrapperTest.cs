@@ -31,70 +31,10 @@ using ClosedXML.Excel;
 using System.Collections.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using thundax.excel.wrapper;
 
 namespace thundax.myTestingStuff
 {
-    public class ExcelWrapper<T>
-    {
-        public static MemoryStream GenerateStream(string worksheetName, Collection<T> data, Collection<string> filter, Collection<string> alias)
-        {
-            using (XLWorkbook workbook = new XLWorkbook())
-            {
-                IXLWorksheet worksheet = workbook.Worksheets.Add(worksheetName);
-
-                //Add Columns using Reflection - this is the header and it only needs to be run once
-                int column = 1;
-                int entry = 1;
-                if (data.Count > 0)
-                {
-                    var item = data[0]; //get the first element of the list
-                    foreach (var property in item.GetType().GetProperties())
-                    {
-                        if (filter.Contains(property.Name))
-                        {
-                            worksheet.Cell(entry, column).SetValue(property.Name).Style.Font.Bold = true;
-                            column++;
-                        }
-                    }
-                    entry++;
-
-                    //Add content using Reflection
-                    foreach (var row in data)
-                    {
-                        column = 1;
-                        foreach (var property in row.GetType().GetProperties())
-                        {
-                            if (filter.Contains(property.Name))
-                            {
-                                object value = property.GetValue(row, null);
-                                worksheet.Cell(entry, column).SetValue(value).Style.Font.Bold = true;
-                                column++;
-                            }
-                        }
-                        entry++;
-                    }
-                }
-                else //just print the headers using the list that has been sent through
-                {
-                    column = 1;
-                    foreach (var header in filter)
-                    {
-                        worksheet.Cell(entry, column).SetValue(header).Style.Font.Bold = true;
-                        column++;
-                    }
-                }
-
-                worksheet.Columns().AdjustToContents();
-
-                MemoryStream memoryStream = new MemoryStream();
-                workbook.SaveAs(memoryStream);
-                memoryStream.Position = 0;
-                return memoryStream;
-            }
-        }
-    }
-
-
     [TestClass]
     public class ExcelExportWrapperTest
     {

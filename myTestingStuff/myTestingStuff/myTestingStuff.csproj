@@ -67,6 +67,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\thundax.excel.wrapper\thundax.excel.wrapper.csproj">
+      <Project>{1510590b-ad1e-4ba0-b1f0-548c00a1726a}</Project>
+      <Name>thundax.excel.wrapper</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
