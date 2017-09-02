@@ -26,11 +26,8 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using myTestingStuff.Common;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace thundax.myTestingStuff
 {
@@ -40,7 +37,20 @@ namespace thundax.myTestingStuff
         [TestMethod]
         public void Autocomplete()
         {
+            Trie tree = new Trie();
+            tree.AddWord("apple");
+            tree.AddWord("application");
+            tree.AddWord("batman");
+            tree.AddWord("banded");
 
+            List<string> words = tree.GetSuggestions("ap");
+            Assert.IsTrue(words.Count == 2);
+            Assert.IsTrue(words[0] == "apple");
+            Assert.IsTrue(words[1] == "application");
+
+            words = tree.GetSuggestions("bat");
+            Assert.IsTrue(words.Count == 1);
+            Assert.IsTrue(words[0] == "batman");
         }
     }
 }

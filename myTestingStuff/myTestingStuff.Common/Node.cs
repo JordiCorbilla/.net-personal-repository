@@ -42,6 +42,19 @@ namespace myTestingStuff.Common
             IsWord = isWord;
         }
 
-
+        public Node AddChild(char letter, bool isLast)
+        {
+            Node value;
+            if (!Children.TryGetValue(letter, out value))
+            {
+                value = new Node(letter, isLast);
+                Children.Add(letter, value);
+            }
+            else
+            {
+                value.IsWord = isLast;
+            }
+            return value;
+        }
     }
 }
