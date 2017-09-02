@@ -31,11 +31,11 @@ namespace myTestingStuff.Common
 {
     public class Trie
     {
-        Dictionary<char, Node> roots;
+        readonly Dictionary<char, Node> _roots;
 
         public Trie()
         {
-            roots = new Dictionary<char, Node>();
+            _roots = new Dictionary<char, Node>();
         }
 
         public void AddWord(string word)
@@ -44,26 +44,19 @@ namespace myTestingStuff.Common
             for(int i=0;i<word.Length; i++)
             {
                 char letter = word[i];
-                bool isFirst = (i == 0);
-                bool isLast = (i == word.Length - 1);
-                if (isFirst)
-                {
-                    node = AddRoot(letter, isLast);
-                }
-                else
-                {
-                    node = node.AddChild(letter, isLast);
-                }
+                bool isFirst = i == 0;
+                bool isLast = i == word.Length - 1;
+                node = isFirst ? AddRoot(letter, isLast) : node?.AddChild(letter, isLast);
             }
         }
 
         public Node AddRoot(char letter, bool isLast)
         {
             Node value;
-            if (!roots.TryGetValue(letter, out value))
+            if (!_roots.TryGetValue(letter, out value))
             {
                 value = new Node(letter, isLast);
-                roots.Add(letter, value);
+                _roots.Add(letter, value);
             }
             else
             {
@@ -83,15 +76,14 @@ namespace myTestingStuff.Common
             for (int i = 0; i < word.Length; i++)
             {
                 char letter = word[i];
-                bool isFirst = (i == 0);
+                bool isFirst = i == 0;
                 if (isFirst)
                 {
-                    roots.TryGetValue(letter, out node);
+                    _roots.TryGetValue(letter, out node);
                 }
                 else
                 {
-                    if (node != null)
-                        node.Children.TryGetValue(letter, out node);
+                    node?.Children.TryGetValue(letter, out node);
                 }
             }
 
@@ -99,11 +91,8 @@ namespace myTestingStuff.Common
             {
                 return words;
             }
-            else
-            {
-                //Now find the words underneath that node recursively
-                FindWords(node, words, word);
-            }
+            //Now find the words underneath that node recursively
+            FindWords(node, words, word);
             return words;
         }
 

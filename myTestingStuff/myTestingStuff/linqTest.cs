@@ -33,7 +33,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace thundax.myTestingStuff
 {
     [TestClass]
-    public class linqTest
+    public class LinqTest
     {
         [TestMethod]
         public void TestExtensionMethod()
@@ -45,31 +45,29 @@ namespace thundax.myTestingStuff
         
     }
 
-    public static class LINQExtension
+    public static class LinqExtension
     {
         public static double Median(this IEnumerable<double> source)
         {
-            if (source.Count() == 0)
+            var enumerable = source as double[] ?? source.ToArray();
+            if (enumerable.Length == 0)
             {
                 throw new InvalidOperationException("Cannot compute median for an empty set.");
             }
 
-            var sortedList = from number in source
+            var sortedList = from number in enumerable
                              orderby number
                              select number;
 
-            int itemIndex = (int)sortedList.Count() / 2;
+            int itemIndex = sortedList.Count() / 2;
 
             if (sortedList.Count() % 2 == 0)
             {
                 // Even number of items.  
                 return (sortedList.ElementAt(itemIndex) + sortedList.ElementAt(itemIndex - 1)) / 2;
             }
-            else
-            {
-                // Odd number of items.  
-                return sortedList.ElementAt(itemIndex);
-            }
+            // Odd number of items.  
+            return sortedList.ElementAt(itemIndex);
         }
     }
 }
