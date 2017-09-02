@@ -101,8 +101,8 @@ namespace myTestingStuff.Common
             }
             else
             {
-                FindWords(node, words, word);
                 //Now find the words underneath that node recursively
+                FindWords(node, words, word);
             }
             return words;
         }
@@ -115,7 +115,6 @@ namespace myTestingStuff.Common
                 if (entry.Value.IsWord)
                     list.Add(branch);
                 FindWords(entry.Value, list, branch);
-                // do something with entry.Value or entry.Key
             }
         }
     }
