@@ -60,6 +60,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AutoCompleteTest.cs" />
     <Compile Include="Biz\TestData.cs" />
     <Compile Include="ExcelExportWrapperTest.cs" />
     <Compile Include="linqTest.cs" />

@@ -25,36 +25,33 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace myTestingStuff.Common
 {
-    public class Runner
+    public class Trie
     {
-        //Just adding some CPU load
-        public void Run()
+        Dictionary<char, Node> roots;
+
+        public Trie()
         {
-            int i = 1000;
-            while (i > 0)
-            {
-                Thread.Sleep(1);
-                i--;
-            }
+            roots = new Dictionary<char, Node>();
         }
 
-        public async Task<int> RunAsync() // we assume we return something after this operation 
+        public void AddWord(string word)
         {
-            await Task.Run(() =>
+
+        }
+
+        public Node AddRoot(char letter)
+        {
+            Node value;
+            if (!roots.TryGetValue(letter, out value))
             {
-                int i = 1000;
-                while (i > 0)
-                {
-                    Thread.Sleep(1);
-                    i--;
-                }
-            }); //1 seconds delay
-            return 1;
+                value = new Node(letter);
+                roots.Add(letter, value);
+            }
+            return value;
         }
     }
 }
