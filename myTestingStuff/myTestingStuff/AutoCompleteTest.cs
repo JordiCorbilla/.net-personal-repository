@@ -52,5 +52,19 @@ namespace thundax.myTestingStuff
             Assert.IsTrue(words.Count == 1);
             Assert.IsTrue(words[0] == "batman");
         }
+
+        [TestMethod]
+        public void LoadAll()
+        {
+            string[] lines = System.IO.File.ReadAllLines(@"C:\Users\thund\Source\Repos\.net-personal-repository\myTestingStuff\myTestingStuff\Data\words.txt");
+            Trie tree = new Trie();
+            foreach (var word in lines)
+            {
+                tree.AddWord(word);
+            }
+
+            List<string> words = tree.GetSuggestions("equid");
+            Assert.IsTrue(words.Count == 13);
+        }
     }
 }
